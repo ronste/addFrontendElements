@@ -11,30 +11,33 @@ msgstr ""
 "PO-Revision-Date: 2021-07-02T13:34:36+00:00\n"
 "Language: \n"
 
-msgid "plugins.generic.addCitation.displayName"
-msgstr "Add Citations"
+msgid "plugins.generic.addFrontendElements.displayName"
+msgstr "Add Frontend Elements"
 
-msgid "plugins.generic.addCitation.description"
+msgid "plugins.generic.addFrontendElements.description"
+msgstr "Adds additional elements to different frontend pages."
+
+msgid "plugins.generic.addFrontendElements.addCitations.description"
 msgstr "Add custom citations to be displayed on the article page."
 
-msgid "plugins.generic.addCitation.tabTitle"
+msgid "plugins.generic.addFrontendElements.addCitations.tabTitle"
 msgstr "Custom Citations"
 
-msgid "plugins.generic.addCitation.management.gridTitle"
+msgid "plugins.generic.addFrontendElements.addCitations.management.gridTitle"
 msgstr "Custom citations"
 
-msgid "plugins.generic.addCitation.addCitationTitle"
+msgid "plugins.generic.addFrontendElements.addCitations.addCitationTitle"
 msgstr "Citations to be display on the article page"
 
-msgid "plugins.generic.addCitation.itemStyle"
+msgid "plugins.generic.addFrontendElements.addCitations.itemStyle"
 msgstr "Citation Style"
 
-msgid "plugins.generic.addCitation.itemCitation"
+msgid "plugins.generic.addFrontendElements.addCitations.itemCitation"
 msgstr "Citation"
 
-msgid "plugins.generic.addCitation.noneCreated"
+msgid "plugins.generic.addFrontendElements.addCitations.noneCreated"
 msgstr "No citations yet."
 
-msgid "plugins.generic.addCitation.addCitation"
+msgid "plugins.generic.addFrontendElements.addCitations.addCitation"
 msgstr "Add citation"
 

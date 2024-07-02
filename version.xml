@@ -3,7 +3,7 @@
 
 <!--
 /**
- * @file plugins/generic/addCitation/version.xml
+ * @file plugins/generic/addFrontendElements/version.xml
  *
  * Copyright (c) 2024 Universitätsbibliothek Freie Universität Berlin
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
@@ -11,11 +11,11 @@
  */
   -->
 <version>
-	<application>addCitation</application>
+	<application>addFrontendElements</application>
 	<type>plugins.generic</type>
 	<release>1.0.0.0</release>
-	<date>2024-04-02</date>
+	<date>2024-07-02</date>
 	<lazy-load>1</lazy-load>
 	<sitewide>0</sitewide>
-	<class>AddCitationPlugin</class>
+	<class>AddFrontendElementsPlugin</class>
 </version>

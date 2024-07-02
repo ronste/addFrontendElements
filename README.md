@@ -1,2 +1,2 @@
-# addCitation
-Add custom citations to be displayed on the article page.
+# AddFrontendElements plugin
+Adds additional elements to different frontend pages.

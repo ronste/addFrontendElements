@@ -1,6 +1,6 @@
 <?php
 /**
- * @file plugins/generic/addCitation/AddCitationPlugin.inc.php
+ * @file plugins/generic/addFrontendElements/AddFrontendElementsPlugin.inc.php
  *
  * Copyright (c) 2024 Universitätsbibliothek Freie Universität Berlin
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
@@ -9,11 +9,11 @@
 import('lib.pkp.classes.plugins.GenericPlugin');
 
 /**
- * @class AddCitationPlugin
+ * @class AddFrontendElements
  * 
  * @brief Enables display of custom citations on the article page.
  */
-class AddCitationPlugin extends GenericPlugin {
+class AddFrontendElementsPlugin extends GenericPlugin {
 	/**
 	 * Register the plugin.
 	 * @param $category string
@@ -106,7 +106,7 @@ class AddCitationPlugin extends GenericPlugin {
 
 		$output .= sprintf(
 			'<tab id="addCitation" label="%s">%s</tab>',
-			__('plugins.generic.addCitation.tabTitle'),
+			__('plugins.generic.addFrontendElements.addCitations.tabTitle'),
 			$smarty->fetch($this->getTemplateResource('metadataForm.tpl'))
 		);
 
@@ -119,7 +119,7 @@ class AddCitationPlugin extends GenericPlugin {
 	function setupGridHandler($hookName, $params) {
 		
 		$component =& $params[0];
-		if ($component == 'plugins.generic.addCitation.controllers.grid.AddCitationGridHandler') {			
+		if ($component == 'plugins.generic.addFrontendElements.controllers.grid.AddCitationGridHandler') {			
 			import($component);
 			AddCitationGridHandler::setPlugin($this);
 			return true;
@@ -157,14 +157,14 @@ class AddCitationPlugin extends GenericPlugin {
 	 * @copydoc PKPPlugin::getDisplayName()
 	 */
 	function getDisplayName() {
-		return __('plugins.generic.addCitation.displayName');
+		return __('plugins.generic.addFrontendElements.displayName');
 	}
 
 	/**
 	 * @copydoc PKPPlugin::getDescription()
 	 */
 	function getDescription() {
-		return __('plugins.generic.addCitation.description');
+		return __('plugins.generic.addFrontendElements.description');
 	}
 
 }

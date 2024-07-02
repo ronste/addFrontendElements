@@ -9,7 +9,7 @@
 
 {if array_intersect(array(ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_ASSISTANT, ROLE_ID_AUTHOR), (array)$userRoles)}
 <div id="addCitation">
-	{capture assign="addCitationGridUrl"}{url router=$smarty.const.ROUTE_COMPONENT component="plugins.generic.addCitation.controllers.grid.AddCitationGridHandler" op="fetchGrid" submissionId=$submissionId escape=false}{/capture}
+	{capture assign="addCitationGridUrl"}{url router=$smarty.const.ROUTE_COMPONENT component="plugins.generic.addFrontendElements.controllers.grid.AddCitationGridHandler" op="fetchGrid" submissionId=$submissionId escape=false}{/capture}
 	{load_url_in_div id="addCitationGridContainer"|uniqid url=$addCitationGridUrl}
 </div>
 {/if}

@@ -13,8 +13,8 @@
  */
 
 import('lib.pkp.classes.controllers.grid.GridHandler');
-import('plugins.generic.addCitation.controllers.grid.AddCitationGridRow');
-import('plugins.generic.addCitation.controllers.grid.AddCitationGridCellProvider');
+import('plugins.generic.addFrontendElements.controllers.grid.AddCitationGridRow');
+import('plugins.generic.addFrontendElements.controllers.grid.AddCitationGridCellProvider');
 
 class AddCitationGridHandler extends GridHandler {
 	
@@ -73,20 +73,21 @@ class AddCitationGridHandler extends GridHandler {
 		$submissionId = $submission->getId();
 
 		// Set the grid details.
-		$this->setTitle('plugins.generic.addCitation.addCitationTitle');
-		$this->setEmptyRowText('plugins.generic.addCitation.noneCreated');
+		$this->setTitle('plugins.generic.addFrontendElements.addCitations.addCitationTitle');
+		$this->setEmptyRowText('plugins.generic.addFrontendElements.addCitations.noneCreated');
 		
 		$publicationDao = DAORegistry::getDAO('PublicationDAO');
 		$publication = $publicationDao->getById($submission->getData('currentPublicationId'));
 		
 		// Get the items and add the data to the grid
 		$gridData = array();
-		$citationsAll = json_decode($publication->getData('citation'));
-		$row = 1;
-		foreach ($citationsAll as $citation) {
-			$gridData[$row] = array('style'=>$citation->style,'citation'=>$citation->citation);
-			$row++;
-		}		
+		if (is_array($citationsAll = json_decode($publication->getData('citation')))) {
+			$row = 1;
+			foreach ($citationsAll as $citation) {
+				$gridData[$row] = array('style'=>$citation->style,'citation'=>$citation->citation);
+				$row++;
+			}
+		}
 		$this->setGridDataElements($gridData);
 
 		// Add grid-level actions
@@ -97,10 +98,10 @@ class AddCitationGridHandler extends GridHandler {
 				'addCitation',
 				new AjaxModal(
 					$router->url($request, null, null, 'addCitation', null, array('submissionId' => $submissionId)),
-					__('plugins.generic.addCitation.addCitation'),
+					__('plugins.generic.addFrontendElements.addCitations.addCitation'),
 					'modal_add_item'
 				),
-				__('plugins.generic.addCitation.addCitation'),
+				__('plugins.generic.addFrontendElements.addCitations.addCitation'),
 				'add_item'
 			)
 		);
@@ -109,7 +110,7 @@ class AddCitationGridHandler extends GridHandler {
 		$cellProvider = new AddCitationGridCellProvider();
 		$this->addColumn(new GridColumn(
 			'style',
-			'plugins.generic.addCitation.itemStyle',
+			'plugins.generic.addFrontendElements.addCitations.itemStyle',
 			null,
 			'controllers/grid/gridCell.tpl',
 			$cellProvider,
@@ -117,7 +118,7 @@ class AddCitationGridHandler extends GridHandler {
 		));
 		$this->addColumn(new GridColumn(
 			'citation',
-			'plugins.generic.addCitation.itemCitation',
+			'plugins.generic.addFrontendElements.addCitations.itemCitation',
 			null,
 			'controllers/grid/gridCell.tpl',
 			$cellProvider,
@@ -142,7 +143,7 @@ class AddCitationGridHandler extends GridHandler {
 	 * @copydoc GridHandler::getJSHandler()
 	 */
 	public function getJSHandler() {
-		return '$.pkp.plugins.generic.addCitation.AddCitationGridHandler';
+		return '$.pkp.plugins.generic.addFrontendElements.AddCitationGridHandler';
 	}
 	
 	//
@@ -175,7 +176,7 @@ class AddCitationGridHandler extends GridHandler {
 		$this->setupTemplate($request);
 
 		// Create and present the edit form
-		import('plugins.generic.addCitation.controllers.grid.form.AddCitationForm');		
+		import('plugins.generic.addFrontendElements.controllers.grid.form.AddCitationForm');		
 		$addCitationForm = new AddCitationForm(self::$plugin, $context->getId(), $submissionId, $objectId);
 		$addCitationForm->initData();
 		$json = new JSONMessage(true, $addCitationForm->fetch($request));
@@ -197,7 +198,7 @@ class AddCitationGridHandler extends GridHandler {
 		$this->setupTemplate($request);
 
 		// Create and populate the form
-		import('plugins.generic.addCitation.controllers.grid.form.AddCitationForm');
+		import('plugins.generic.addFrontendElements.controllers.grid.form.AddCitationForm');
 		$addCitationForm = new AddCitationForm(self::$plugin, $context->getId(), $submissionId, $objectId);
 		$addCitationForm->readInputData();
 				

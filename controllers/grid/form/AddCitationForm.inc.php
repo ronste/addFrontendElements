@@ -43,8 +43,8 @@ class AddCitationForm extends Form {
 		$this->objectId = $objectId;	
 
 		// Add form checks
-		$this->addCheck(new FormValidator($this, 'style', 'optional', 'plugins.generic.addCitation.style'));
-		$this->addCheck(new FormValidator($this, 'citation', 'required', 'plugins.generic.addCitation.citation'));
+		$this->addCheck(new FormValidator($this, 'style', 'optional', 'plugins.generic.addFrontendElements.style'));
+		$this->addCheck(new FormValidator($this, 'citation', 'required', 'plugins.generic.addFrontendElements.citation'));
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
 	}

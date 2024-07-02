@@ -12,8 +12,8 @@
 (function($) {
 
 	/** @type {Object} */
-	$.pkp.plugins.generic.addCitation =
-		$.pkp.plugins.generic.addCitation ||
+	$.pkp.plugins.generic.addFrontendElements =
+		$.pkp.plugins.generic.addFrontendElements ||
 		{ js: { } };
 
 	/**
@@ -25,12 +25,12 @@
 	 *  attached to.
 	 * @param {Object} options Grid handler configuration.
 	 */
-	$.pkp.plugins.generic.addCitation.AddCitationGridHandler =
+	$.pkp.plugins.generic.addFrontendElements.AddCitationGridHandler =
 			function($grid, options) {
 		this.parent($grid, options);
 	};
 	$.pkp.classes.Helper.inherits(
-			$.pkp.plugins.generic.addCitation.AddCitationGridHandler,
+			$.pkp.plugins.generic.addFrontendElements.AddCitationGridHandler,
 			$.pkp.controllers.grid.GridHandler);
 
 	//
@@ -49,7 +49,7 @@
 	 *  @param {Boolean=} opt_fetchedAlready Flag that subclasses can send
 	 *  telling that a fetch operation was already handled there.
 	 */
-	$.pkp.plugins.generic.addCitation.AddCitationGridHandler.prototype.refreshGridHandler =
+	$.pkp.plugins.generic.addFrontendElements.AddCitationGridHandler.prototype.refreshGridHandler =
 			function(sourceElement, event, opt_elementId, opt_fetchedAlready) {
 		var params;
 
