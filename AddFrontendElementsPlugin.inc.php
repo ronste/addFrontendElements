@@ -31,10 +31,56 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 				HookRegistry::register('Schema::get::publication', array($this, 'addToSchema')); // to add variables to publication schema	
 				HookRegistry::register('ArticleHandler::view', array($this, 'getArticleTemplateData'));
 				HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
-				HookRegistry::register('TemplateManager::display',array($this, 'addJs'));				
+				HookRegistry::register('TemplateManager::display',array($this, 'addJs'));
+				HookRegistry::register('Template::Settings::website::appearance', array($this, 'callbackAppearanceTab')); //to enable display of plugin settings tab			
 			}
 			return true;
 		}
+		return false;
+	}
+
+	# add plugin settings to the website appearance tab
+	function callbackAppearanceTab($hookName, $args) {		
+
+		# prepare data
+		$templateMgr =& $args[1];
+		$output =& $args[2];
+		$request =& Registry::get('request');
+		$context = $request->getContext();
+		$contextId = $context->getId();
+		$dispatcher = $request->getDispatcher();
+
+		$supportedFormLocales = $context->getSupportedFormLocales();
+		$localeNames = AppLocale::getAllLocales();
+		$locales = array_map(function($localeKey) use ($localeNames) {
+			return ['key' => $localeKey, 'label' => $localeNames[$localeKey]];
+		}, $supportedFormLocales);
+
+		$contextApiUrl = $dispatcher->url(
+			$request,
+			ROUTE_API,
+			$context->getPath(),
+			'contexts/' . $context->getId() . "/addFrontendElementsSettings"
+		);
+		$contextUrl = $request->getRouter()->url($request, $context->getPath());
+
+		# get data to initilaize ComponentForm
+		// $stopOnLastSlide = $this->getSetting($contextId, 'stopOnLastSlide');
+
+		// instantinate settings form
+		$this->import('classes.components.form.addFrontendElementsSettingsForm');
+		$addFrontendElementsSettingsForm = new AddFrontendElementsSettingsForm($contextApiUrl, $locales, $context, $baseUrl);
+
+		$state = $templateMgr->getTemplateVars('state');
+		$state['components'][FORM_ADDFRONTENDELEMENTS_SETTINGS] = $addFrontendElementsSettingsForm->getConfig();
+		$templateMgr->assign('state', $state);
+
+		$templateMgr->setConstants([
+			'FORM_ADDFRONTENDELEMENTS_SETTINGS',
+		]);
+		$output .= $templateMgr->fetch($this->getTemplateResource('appearanceTab.tpl'));
+
+		// Permit other plugins to continue interacting with this hook
 		return false;
 	}
 	

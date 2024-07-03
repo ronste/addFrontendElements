@@ -17,6 +17,9 @@ msgstr "Add Frontend Elements"
 msgid "plugins.generic.addFrontendElements.description"
 msgstr "Adds additional elements to different frontend pages."
 
+msgid "plugins.generic.addFrontendElements.tabname"
+msgstr "addFrontendelements Plugin"
+
 msgid "plugins.generic.addFrontendElements.addCitations.description"
 msgstr "Manuelle Eingabe von Zitationsvorschlägen und Präsentation auf der Artikelseite."
 

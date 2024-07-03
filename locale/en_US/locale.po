@@ -17,6 +17,21 @@ msgstr "Add Frontend Elements"
 msgid "plugins.generic.addFrontendElements.description"
 msgstr "Adds additional elements to different frontend pages."
 
+msgid "plugins.generic.addFrontendElements.tabname"
+msgstr "Additional\nFrontend Elements"
+
+msgid "plugins.generic.addFrontendElements.articleDetails.groupLabel"
+msgstr "Article details page"
+
+msgid "plugins.generic.addFrontendElements.articleDetails.boxLabel"
+msgstr "Enable additional elements to be added to the article details page"
+
+msgid "plugins.generic.addFrontendElements.addCitations.settings.description"
+msgstr "Enable the option to manually add citation suggestions to the article details page."
+
+msgid "plugins.generic.addFrontendElements.reviewTypeBadge.settings.description"
+msgstr "Enable badge to indicate the review type of the article."
+
 msgid "plugins.generic.addFrontendElements.addCitations.description"
 msgstr "Add custom citations to be displayed on the article page."
 
