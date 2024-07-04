@@ -33,28 +33,28 @@ class AddFrontendElementsSettingsForm extends FormComponent {
 	 * @param string $action string URL to submit the form to
 	 * @param array $locales array Supported locales
 	 * @param object $context Context Journal or Press to change settings for
-	 * @param string $baseUrl string Site's base URL. Used for image previews.
 	 * @param string $temporaryFileApiUrl string URL to upload files to
 	 * @param string $imageUploadUrl string The API endpoint for images uploaded through the rich text field
 	 * @param string $publicUrl url to the frontend page
 	 * @param array $data settings for form initialization
 	 */
-	public function __construct($action, $locales, $context, $baseUrl) {
+	public function __construct($action, $locales, $context) {
 		$this->action = $action;
 		$this->successMessage = __('plugins.generic.addFrontendElements.settings.form.success', ['url' => $publicUrl]);
 		$this->locales = $locales;
+		$plugin = PluginRegistry::getPlugin('generic', 'addfrontendelementsplugin');
 
 		$this->addGroup([
 			'id' => 'addfrontendelementssettings',
 			'label' => __('plugins.generic.addFrontendElements.articleDetails.groupLabel'),
 		], [])
-		->addField(new FieldOptions('stopOnLastSlide', [
+		->addField(new FieldOptions('articleDetailsPageSettings', [
 			'label' => __('plugins.generic.addFrontendElements.articleDetails.boxLabel'),
 			'options' => [
 				['value' => 'citations', 'label' => __('plugins.generic.addFrontendElements.addCitations.settings.description')],
 				['value' => 'reviewTypeBadge', 'label' => __('plugins.generic.addFrontendElements.reviewTypeBadge.settings.description')]
 			],
-			'value' => $context->getData('addFrontendElementsArticlePageElementsSelected') ?: [],
+			'value' => $context->getData('articleDetailsPageSettings') ?: [],
 			'groupId' => 'addfrontendelementssettings'
 		]));
 	}

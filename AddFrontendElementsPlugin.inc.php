@@ -25,17 +25,66 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 	function register($category, $path, $mainContextId = null) {	
 	
 		if (parent::register($category, $path, $mainContextId)) {
-			if ($this->getEnabled($mainContextId)) {			
+			if ($this->getEnabled($mainContextId)) {
+
+				# hooks used to handle plugin settings
+				HookRegistry::register('Schema::get::publication', array($this, 'addToSchema')); // to add variables to publication schema
+				HookRegistry::register('Schema::get::context', array($this, 'addToSchema')); // to add plugin settings to context schema
+				HookRegistry::register('APIHandler::endpoints', array($this, 'callbackSetupEndpoints')); //to setup endpoint for ComponentForm submission via REST API
+				HookRegistry::register('Template::Settings::website::appearance', array($this, 'callbackAppearanceTab')); //to enable display of plugin settings tab
+				
+				# hooks to handle citation feature
 				HookRegistry::register('LoadComponentHandler', array($this, 'setupGridHandler')); //to load (old style) grid handler 
 				HookRegistry::register('Template::Workflow::Publication', array($this, 'addToPublicationForms'));
-				HookRegistry::register('Schema::get::publication', array($this, 'addToSchema')); // to add variables to publication schema	
 				HookRegistry::register('ArticleHandler::view', array($this, 'getArticleTemplateData'));
 				HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
 				HookRegistry::register('TemplateManager::display',array($this, 'addJs'));
-				HookRegistry::register('Template::Settings::website::appearance', array($this, 'callbackAppearanceTab')); //to enable display of plugin settings tab			
+
+				# hooks to handle review badge feature
+
+				
 			}
 			return true;
 		}
+		return false;
+	}
+
+	# add our API endpoints to handle form data
+	function callbackSetupEndpoints($hook, $args) {
+		$endpoints =& $args[0];
+
+		import('plugins.generic.addFrontendElements.controllers.tab.AddFrontendElementsSettingsTabFormHandler');
+		$handler = new AddFrontendElementsSettingsTabFormHandler();
+
+		// add the new endpoint
+		$endpoints['POST'][] = 
+			[
+				'pattern' => '/{contextPath}/api/{version}/contexts/{contextId}/addFrontendElementsSettings',
+				'handler' => [$handler, 'saveFormData'],
+				'roles' => array(ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER)
+			];
+	}
+
+	# add plugin variables to the appropriate schema
+	public function addToSchema($hookName, $params) {
+		$schema =& $params[0];
+		switch ($hookName) {
+			case 'Schema::get::publication':
+				$schema->properties->{"citation"} = (object) [
+					'type' => 'string',
+					'multilingual' => false
+				];
+				break;
+			case 'Schema::get::context':
+				$schema->properties->{"articleDetailsPageSettings"} = (object) [
+					'type' => 'array',
+					'apiSummary' => true,
+					'validation' => ['nullable'],
+					'items' => (object) ['type' => 'string']
+				];
+				break;
+		}
+
 		return false;
 	}
 
@@ -47,7 +96,6 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		$output =& $args[2];
 		$request =& Registry::get('request');
 		$context = $request->getContext();
-		$contextId = $context->getId();
 		$dispatcher = $request->getDispatcher();
 
 		$supportedFormLocales = $context->getSupportedFormLocales();
@@ -62,14 +110,10 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 			$context->getPath(),
 			'contexts/' . $context->getId() . "/addFrontendElementsSettings"
 		);
-		$contextUrl = $request->getRouter()->url($request, $context->getPath());
-
-		# get data to initilaize ComponentForm
-		// $stopOnLastSlide = $this->getSetting($contextId, 'stopOnLastSlide');
 
 		// instantinate settings form
 		$this->import('classes.components.form.addFrontendElementsSettingsForm');
-		$addFrontendElementsSettingsForm = new AddFrontendElementsSettingsForm($contextApiUrl, $locales, $context, $baseUrl);
+		$addFrontendElementsSettingsForm = new AddFrontendElementsSettingsForm($contextApiUrl, $locales, $context);
 
 		$state = $templateMgr->getTemplateVars('state');
 		$state['components'][FORM_ADDFRONTENDELEMENTS_SETTINGS] = $addFrontendElementsSettingsForm->getConfig();
@@ -84,6 +128,7 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		return false;
 	}
 	
+	// Citation feature functions 
 	/**
 	 * Retrieve citation information for the article details template. This
 	 * method is hooked in before a template displays.
@@ -102,60 +147,56 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		$contextId = $context ? $context->getId() : 0;
 		$templateMgr = TemplateManager::getManager($request);
 
-		$citationsAll = json_decode($publication->getData('citation'),true);				
-		$output = "";
-		if ($citationsAll) {
-			foreach($citationsAll as $citation) {
-				$output .= '<div class="addCitationItem">';
-				if ($citation['style']) {
-					$output .= "<span>".$citation['style'].":</span>";
-				}
-				$output .= $citation['citation'].'</div>';			
-			}			
-		}
+		if (in_array('citations', $context->getData('articleDetailsPageSettings'))) {
 
-		if ($output) {
-			$templateMgr->assign(array(
-				'addCitation' => '<div>'.$output."</div>"
-			));			
+			$citationsAll = json_decode($publication->getData('citation'),true);				
+			$output = "";
+			if ($citationsAll) {
+				foreach($citationsAll as $citation) {
+					$output .= '<div class="addCitationItem">';
+					if ($citation['style']) {
+						$output .= "<span>".$citation['style'].":</span>";
+					}
+					$output .= $citation['citation'].'</div>';			
+				}			
+			}
+
+			if ($output) {
+				$templateMgr->assign(array(
+					'addCitation' => '<div>'.$output."</div>"
+				));			
+			}
+			
+			import('classes.file.PublicFileManager');
+			$publicFileManager = new PublicFileManager();
+			$baseUrl = $request->getBaseUrl();		
+			$templateMgr->addHeader(
+				'addCitation',
+				"<link rel='stylesheet' href='".$baseUrl."/plugins/generic/addCitation/css/addCitation.css'>"
+			);
 		}
-		
-		import('classes.file.PublicFileManager');
-		$publicFileManager = new PublicFileManager();
-		$baseUrl = $request->getBaseUrl();		
-		$templateMgr->addHeader(
-			'addCitation',
-			"<link rel='stylesheet' href='".$baseUrl."/plugins/generic/addCitation/css/addCitation.css'>"
-		);		
 		return false;
-	}	
-	
-	public function addToSchema($hookName, $params) {
-		$schema =& $params[0];
-		$schema->properties->{"citation"} = (object) [
-			'type' => 'string',
-			'multilingual' => false
-		];
-		return false;
-	}	
+	}		
 	
 	/**
-	 * Insert   in the publication tabs
+	 * Insert in the publication tabs
 	 */
 	function addToPublicationForms($hookName, $params) {
-		$smarty =& $params[1];
-		$output =& $params[2];
-		$submission = $smarty->getTemplateVars('submission');
-		$smarty->assign([
-			'submissionId' => $submission->getId(),
-		]);
+		$context = Application::getRequest()->getContext();
+		if (in_array('citations', $context->getData('articleDetailsPageSettings'))) {
+			$smarty =& $params[1];
+			$output =& $params[2];
+			$submission = $smarty->getTemplateVars('submission');
+			$smarty->assign([
+				'submissionId' => $submission->getId(),
+			]);
 
-		$output .= sprintf(
-			'<tab id="addCitation" label="%s">%s</tab>',
-			__('plugins.generic.addFrontendElements.addCitations.tabTitle'),
-			$smarty->fetch($this->getTemplateResource('metadataForm.tpl'))
-		);
-
+			$output .= sprintf(
+				'<tab id="addCitation" label="%s">%s</tab>',
+				__('plugins.generic.addFrontendElements.addCitations.tabTitle'),
+				$smarty->fetch($this->getTemplateResource('metadataForm.tpl'))
+			);
+		}
 		return false;
 	}
 		
@@ -190,6 +231,12 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 
 		return false;
 	}
+
+	// Review badge feature functions
+
+
+
+	// global helper functions
 
 	/**
 	 * Get the JavaScript URL for this plugin.

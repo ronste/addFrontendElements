@@ -86,16 +86,24 @@
 			}
 		</div>
 	{/if}
+
 	{* patch_fu_020_01 https://docs.pkp.sfu.ca/ojs-2-technical-reference/en/security *}
 	<h1 class="page_title">
 		{$publication->getLocalizedTitle()|strip_unsafe_html}
 	</h1>
+	
+	{* review type badge *}
+	<div class="reviewTypeBadge" style="float:right;">
+		<span style="border-radius: 5px; background: #ebebeb; color: #262626; padding: 6px;">Editorial Review</span>
+	</div>
 
 	{if $publication->getLocalizedData('subtitle')}
 		<h2 class="subtitle">
 			{$publication->getLocalizedData('subtitle')|strip_unsafe_html}
 		</h2>
 	{/if}
+
+
 
 	<div class="row">
 		<div class="main_entry">
