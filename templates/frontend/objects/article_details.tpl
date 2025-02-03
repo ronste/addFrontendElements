@@ -103,6 +103,15 @@
 	</div>
 	{/if}
 
+	{* customHTMLcontent *}
+	{if $customHTMLContentPosition == 'top'}
+		{if $customHTMLContent}
+		<div class="customHTMLContent">
+			{$customHTMLContent}
+		</div>
+		{/if}
+	{/if}
+
 	{if $publication->getLocalizedData('subtitle')}
 		<h2 class="subtitle">
 			{$publication->getLocalizedData('subtitle')|strip_unsafe_html}
@@ -502,6 +511,16 @@
 			{call_hook name="Templates::Article::Details"}
 
 		</div><!-- .entry_details -->
+
+		{* customHTMLcontent *}
+		{if $customHTMLContentPosition == 'bottom'}
+			{if $customHTMLContent}
+			<div class="customHTMLContent">
+				{$customHTMLContent}
+			</div>
+			{/if}
+		{/if}
+		
 	</div><!-- .row -->
 
 </article>

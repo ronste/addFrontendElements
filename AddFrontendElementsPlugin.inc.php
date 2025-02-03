@@ -33,7 +33,7 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 				HookRegistry::register('Schema::get::context', array($this, 'addToSchema')); // to add plugin settings to context schema
 				HookRegistry::register('APIHandler::endpoints', array($this, 'callbackSetupEndpoints')); //to setup endpoint for ComponentForm submission via REST API
 				HookRegistry::register('Template::Settings::website::appearance', array($this, 'callbackAppearanceTab')); //to enable display of plugin settings tab
-				
+			
 				# hooks to handle citation feature
 				HookRegistry::register('LoadComponentHandler', array($this, 'setupGridHandler')); //to load (old style) grid handler 
 				HookRegistry::register('Template::Workflow::Publication', array($this, 'addToPublicationForms'));
@@ -56,14 +56,11 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 
 		import('plugins.generic.addFrontendElements.controllers.tab.AddFrontendElementsSettingsTabFormHandler');
 		$handler = new AddFrontendElementsSettingsTabFormHandler();
+		$endpoints = array_merge_recursive($endpoints, $handler->setupEndpoints());
 
-		// add the new endpoint
-		$endpoints['POST'][] = 
-			[
-				'pattern' => '/{contextPath}/api/{version}/contexts/{contextId}/addFrontendElementsSettings',
-				'handler' => [$handler, 'saveFormData'],
-				'roles' => array(ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER)
-			];
+		$this->import('controllers.tab.AddFrontendElementsPublicationTabFormHandler');
+		$handler = new AddFrontendElementsPublicationTabFormHandler();
+		$endpoints = array_merge_recursive($endpoints, $handler->setupEndpoints());
 	}
 
 	# add plugin variables to the appropriate schema
@@ -82,6 +79,12 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 					'multilingual' => true,
 					'items' => (object) ['type' => 'string']
 				];
+				$schema->properties->{"customHTMLContent"} = (object) [
+					'type' => 'string',
+					'apiSummary' => true,
+					'validation' => ['nullable'],
+					'multilingual' => true,
+				];
 				break;
 			case 'Schema::get::context':
 				$schema->properties->{"articleDetailsPageSettings"} = (object) [
@@ -89,6 +92,11 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 					'apiSummary' => true,
 					'validation' => ['nullable'],
 					'items' => (object) ['type' => 'string']
+				];
+				$schema->properties->{"customHTMLContentPosition"} = (object) [
+					'type' => 'string',
+					'apiSummary' => true,
+					'validation' => ['nullable'],
 				];
 				break;
 		}
@@ -109,11 +117,28 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		$contextApiUrl = $this->getAPIUrl($request);
 
 		// instantinate settings form
-		$this->import('classes.components.form.addFrontendElementsSettingsForm');
+		$this->import('classes.components.form.AddFrontendElementsSettingsForm');
 		$addFrontendElementsSettingsForm = new AddFrontendElementsSettingsForm($contextApiUrl, $locales, $context);
 
 		$state = $templateMgr->getTemplateVars('state');
 		$state['components'][FORM_ADDFRONTENDELEMENTS_SETTINGS] = $addFrontendElementsSettingsForm->getConfig();
+		
+		$currentTheme = $request->getContext()->getData('themePluginPath');
+		switch ($currentTheme) {
+			case 'immersion':
+				$customHTMLContentPositionOptions = [
+					['value' => 'top', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContentPosition.top')],
+				];
+				break;
+			default:
+				$customHTMLContentPositionOptions = [
+					['value' => 'top', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContentPosition.top')],
+					['value' => 'bottom', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContentPosition.bottom')],
+				];
+		}
+		// hardcoding field index is not nice !!!
+		$state['components'][FORM_ADDFRONTENDELEMENTS_SETTINGS]['fields'][1]['options'] = $customHTMLContentPositionOptions;
+		
 		$templateMgr->assign('state', $state);
 
 		$templateMgr->setConstants([
@@ -176,6 +201,12 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 				'articleBadges' => $publication->getLocalizedData('articleBadges')
 			));
 		}
+		if (in_array('customHTMLContent', $context->getData('articleDetailsPageSettings'))) {
+			$templateMgr->assign(array(
+				'customHTMLContent' => $publication->getLocalizedData('customHTMLContent'),
+				'customHTMLContentPosition' => $context->getData('customHTMLContentPosition')
+			));
+		}
 		return false;
 	}
 	
@@ -183,21 +214,70 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 	 * Insert in the publication tabs
 	 */
 	function addToPublicationForms($hookName, $params) {
-		$context = Application::get()->getRequest()->getContext();
+		$templateMgr =& $params[1];
+		$output =& $params[2];
+		$request =& Registry::get('request');
+		$context = $request->getContext();
+		$locales = $this->getLocales($context);
+
 		if (in_array('citations', $context->getData('articleDetailsPageSettings'))) {
-			$smarty =& $params[1];
-			$output =& $params[2];
-			$submission = $smarty->getTemplateVars('submission');
-			$smarty->assign([
+
+			$submission = $templateMgr->getTemplateVars('submission');
+			$templateMgr->assign([
 				'submissionId' => $submission->getId(),
 			]);
 
 			$output .= sprintf(
 				'<tab id="addCitation" label="%s">%s</tab>',
 				__('plugins.generic.addFrontendElements.addCitations.tabTitle'),
-				$smarty->fetch($this->getTemplateResource('metadataForm.tpl'))
+				$templateMgr->fetch($this->getTemplateResource('metadataForm.tpl'))
 			);
 		}
+
+		if (in_array('articleBadges', $context->getData('articleDetailsPageSettings')) or
+			in_array('customHTMLContent', $context->getData('articleDetailsPageSettings'))) {
+			# add tab to publication tab
+			# get the current publication object
+			$handler = $request->getRouter()->getHandler();
+			$submission = $handler->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION);
+			if (!$submission || !$context || $context->getId() != $submission->getContextId()) {
+				return;
+			} // submission id could not be found
+			$publication = $submission->getCurrentPublication();
+			$dispatcher = $request->getDispatcher();
+
+			$contextApiUrl = $dispatcher->url(
+				$request,
+				ROUTE_API,
+				$context->getPath(),
+				'contexts/' . $context->getId() . "/addFrontendElements/" . $submission->getId() . "/". $publication->getId()
+			);
+
+			$suggestionUrlBase = $dispatcher->url(
+				$request,
+				ROUTE_API,
+				$context->getPath(),
+				'contexts/' . $context->getId() . "/addFrontendElements/vocabs?vocab=articleBadges"
+			);
+
+			$imageUplaodApiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), '_uploadPublicFile');
+
+			// instantinate publication tab form
+			$this->import('classes.components.form.AddFrontendElementsPublicationTabForm');
+			$addFrontendElementsPublicationTabForm = new AddFrontendElementsPublicationTabForm($contextApiUrl, $locales, $context, $publication, $suggestionUrlBase, $imageUplaodApiUrl);
+
+			$state = $templateMgr->getTemplateVars('state');
+			$state['components'][FORM_ADDFRONTENDELEMENTS_PUBLICATION_TAB] = $addFrontendElementsPublicationTabForm->getConfig();
+			$templateMgr->assign('state', $state);
+
+			$templateMgr->setConstants([
+				'FORM_ADDFRONTENDELEMENTS_PUBLICATION_TAB',
+			]);
+			
+
+			$output .= $templateMgr->fetch($this->getTemplateResource('publicationTab.tpl'));
+		}
+
 		return false;
 	}
 
@@ -227,7 +307,7 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 					'isMultilingual' => true,
 					// 'apiUrl' => str_replace('__vocab__', CONTROLLED_VOCAB_SUBMISSION_KEYWORD, $suggestionUrlBase),
 					'locales' => $locales,
-					'selected' => (array) $publication->getData('articleBadges')?:[],
+					'selected' => (array) $publication->getData('articleBadges'),
 				]), [FIELD_POSITION_BEFORE, 'coverImage']);
 			}
 		}
@@ -243,7 +323,7 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 			import($component);
 			AddCitationGridHandler::setPlugin($this);
 			return true;
-		}	
+		}
 		return false;
 	}
 

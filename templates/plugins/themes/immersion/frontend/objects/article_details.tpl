@@ -88,6 +88,13 @@
 		</div>
 		{/if}
 
+		{* customHTMLContent *}
+		{if $customHTMLContent}
+		<div class="customHTMLContent">
+			{$customHTMLContent}
+		</div>
+		{/if}
+
 		{if $section}
 			<p class="article-page__meta">{$section->getLocalizedTitle()|escape}</p>
 		{else}

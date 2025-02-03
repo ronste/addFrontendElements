@@ -1,15 +1,15 @@
 <?php
 /**
- * @file classes/components/form/addFrontendElementsSettingsForm.inc.php
+ * @file classes/components/form/AddFrontendElementsSettingsForm.inc.php
  *
  * Copyright (c) 2021 Freie Universität Berlin
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  * 
- * @brief File implemnting addFrontendElementsSettingsForm
+ * @brief File implemnting AddFrontendElementsSettingsForm
  */
 
+use PKP\components\forms\FieldRadioInput;
 use \PKP\components\forms\FormComponent;
-use \PKP\components\forms\FieldText;
 use \PKP\components\forms\FieldOptions;
 
 define('FORM_ADDFRONTENDELEMENTS_SETTINGS', 'addFrontendElementsSettings');
@@ -52,10 +52,16 @@ class AddFrontendElementsSettingsForm extends FormComponent {
 			'options' => [
 				['value' => 'citations', 'label' => __('plugins.generic.addFrontendElements.addCitations.settings.description')],
 				['value' => 'articleBadges', 'label' => __('plugins.generic.addFrontendElements.articleBadges.settings.description')],
-				['value' => 'customHTMLBox', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLBox.description')]
+				['value' => 'customHTMLContent', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContent.description')]
 			],
 			'value' => $context->getData('articleDetailsPageSettings') ?: [],
 			'groupId' => 'addfrontendelementssettings'
+		]))
+		->addField(new FieldRadioInput('customHTMLContentPosition', [
+			'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContentPosition.boxLabel'),
+			'options' => [],
+			'value' => $context->getData('customHTMLContentPosition') ?: 'top',
+			'groupId' => 'addfrontendelementssettings',
 		]));
 	}
 

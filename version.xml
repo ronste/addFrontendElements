@@ -13,8 +13,8 @@
 <version>
 	<application>addFrontendElements</application>
 	<type>plugins.generic</type>
-	<release>1.0.0.0</release>
-	<date>2024-07-02</date>
+	<release>1.1.0.0</release>
+	<date>2025-02-03</date>
 	<lazy-load>1</lazy-load>
 	<sitewide>0</sitewide>
 	<class>AddFrontendElementsPlugin</class>

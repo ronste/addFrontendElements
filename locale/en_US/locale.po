@@ -17,8 +17,11 @@ msgstr "Add Frontend Elements"
 msgid "plugins.generic.addFrontendElements.description"
 msgstr "Adds additional elements to different frontend pages."
 
-msgid "plugins.generic.addFrontendElements.tabname"
+msgid "plugins.generic.addFrontendElements.settings.tabname"
 msgstr "Additional\nFrontend Elements"
+
+msgid "plugins.generic.addFrontendElements.publicationTab.tabname"
+msgstr "Additional Frontend Elements"
 
 msgid "plugins.generic.addFrontendElements.articleDetails.groupLabel"
 msgstr "Article details page"
@@ -62,5 +65,20 @@ msgstr "Article badges"
 msgid "plugins.generic.addFrontendElements.articleBadges.description"
 msgstr "Enter labels to show on the article page as badges. E.g. define the review type of this article as \"Editorial review\""
 
-msgid "plugins.generic.addFrontendElements.settings.customHTMLBox.description"
+msgid "plugins.generic.addFrontendElements.settings.customHTMLContent.description"
 msgstr "Allow additional HTML content to be shown"
+
+msgid "plugins.generic.addFrontendElements.customHTMLContent.label"
+msgstr "Additional HTML content to be shown on the article page"
+
+msgid "plugins.generic.addFrontendElements.customHTMLContent.tooltip"
+msgstr "By means of the \"<> (Source Code)\" button you can e.g. integrate HTML-Code to embbed streaming video sources."
+
+msgid "plugins.generic.addFrontendElements.settings.customHTMLContentPosition.boxLabel"
+msgstr "Select position of the custom HTML content on the article page"
+
+msgid "plugins.generic.addFrontendElements.settings.customHTMLContentPosition.top"
+msgstr "Top"
+
+msgid "plugins.generic.addFrontendElements.settings.customHTMLContentPosition.bottom"
+msgstr "Bottom"

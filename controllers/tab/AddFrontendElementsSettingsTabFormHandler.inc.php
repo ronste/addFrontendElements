@@ -18,6 +18,21 @@ import('lib.pkp.classes.validation.ValidatorFactory');
  */
 class AddFrontendElementsSettingsTabFormHandler extends SettingsHandler {
 
+	public $_endpoints;
+
+	public function setupEndpoints() {
+        $roles = array(ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER);
+		$this->_endpoints = array(
+			'POST' => array(
+				array(
+					'pattern' => '/{contextPath}/api/{version}/contexts/{contextId}/addFrontendElementsSettings',
+					'handler' => [$this, 'saveFormData'],
+					'roles' => $roles
+				),
+			)
+		);
+        return $this->_endpoints;
+    }
 	function saveFormData(... $functionArgs) {
 
 		$request = Application::get()->getRequest();
@@ -25,8 +40,7 @@ class AddFrontendElementsSettingsTabFormHandler extends SettingsHandler {
 		$args = $request->_requestVars;
 		$response =& $functionArgs[1];
 
-		$context->setData('articleDetailsPageSettings', $args['articleDetailsPageSettings']);
-		$context->updateSetting('articleDetailsPageSettings', $args['articleDetailsPageSettings']);
+		Services::get('context')->edit($context, $args, $request);
 
 		return $response->withStatus(200);
 	}

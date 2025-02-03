@@ -14,87 +14,63 @@
 
 import('lib.pkp.classes.form.Form');
 
-class AddFrontendElementsPublicationTabForm extends Form {
-	/** @var int Context ID */
-	var $contextId;
+use \PKP\components\forms\FormComponent;
+use \PKP\components\forms\FieldControlledVocab;
+use \PKP\components\forms\FieldRichTextarea;
 
-	/** @var int Submission ID */
-	var $submissionId;
+define('FORM_ADDFRONTENDELEMENTS_PUBLICATION_TAB', 'addFrontendElementsPublicationTab');
 
-	/** @var AddFrontendElementsPlugin */
-	var $plugin;
-	
-	var $objectId;
+class AddFrontendElementsPublicationTabForm extends FormComponent {
+	/** @copydoc FormComponent::$id */
+	public $id = FORM_ADDFRONTENDELEMENTS_PUBLICATION_TAB;
+
+	/** @copydoc FormComponent::$method */
+	public $method = 'POST';
 
 	/**
 	 * Constructor
-	 * @param $addCitationPlugin AddCitationPlugin
-	 * @param $contextId int Context ID
-	 * @param $submissionId int Submission ID
-	 * @param $objectId int 
+	 *
+	 * @param string $action string URL to submit the form to
+	 * @param array $locales array Supported locales
+	 * @param object $context Context Journal or Press to change settings for
+	 * @param string $temporaryFileApiUrl string URL to upload files to
+	 * @param string $imageUploadUrl string The API endpoint for images uploaded through the rich text field
+	 * @param string $publicUrl url to the frontend page
+	 * @param array $data settings for form initialization
 	 */
-	function __construct($addCitationPlugin, $contextId, $submissionId, $objectId) {
-		parent::__construct($addCitationPlugin->getTemplateResource('editAddCitationForm.tpl'));
+	public function __construct($action, $locales, $context, $publication, $suggestionUrlBase, $imageUploadUrl) {
+		$this->action = $action;
+		$this->locales = $locales;
 
-		$this->contextId = $contextId;
-		$this->submissionId = $submissionId;
-		$this->plugin = $addCitationPlugin;
-		$this->objectId = $objectId;	
-
-		// Add form checks
-		$this->addCheck(new FormValidator($this, 'style', 'optional', 'plugins.generic.addFrontendElements.style'));
-		$this->addCheck(new FormValidator($this, 'citation', 'required', 'plugins.generic.addFrontendElements.citation'));
-		$this->addCheck(new FormValidatorPost($this));
-		$this->addCheck(new FormValidatorCSRF($this));
-	}
-
-	/**
-	 * @copydoc Form::initData()
-	 */
-	function initData() {
-		$this->setData('submissionId', $this->submissionId);
-		$this->setData('objectId', $this->objectId);		
-		$submissionDao = DAORegistry::getDAO('SubmissionDAO');
-		$submission = $submissionDao->getById($this->submissionId);
-		$publicationDao = DAORegistry::getDAO('PublicationDAO');
-		$publication = $publicationDao->getById($submission->getData('currentPublicationId'));
-		$citationsAll = json_decode($publication->getData('citation'),true);
-		
-		if (isset($this->objectId)) {			
-			$this->setData('style', $citationsAll[$this->objectId-1]['style']);
-			$this->setData('citation', $citationsAll[$this->objectId-1]['citation']);
+		$this->addGroup([
+			'id' => 'addfrontendelementspublicationtabarticlepagegroup',
+			// 'label' => __('plugins.generic.addFrontendElements.articleDetails.groupLabel'),
+		]);
+		if (in_array('articleBadges', $context->getData('articleDetailsPageSettings'))) {
+			$this->addField(new FieldControlledVocab('articleBadges', [
+				'label' => __('plugins.generic.addFrontendElements.articleBadges.label'),
+				'tooltip' => __('plugins.generic.addFrontendElements.articleBadges.description'),
+				'isMultilingual' => true,
+				// 'apiUrl' => $suggestionUrlBase,
+				'locales' => $locales,
+				'value' => (array) $publication->getData('articleBadges')?:[],
+				'selected' => (array) $publication->getData('articleBadges')?:[],
+				'groupId' => 'addfrontendelementspublicationtabarticlepagegroup'
+			]));
 		}
-	}
 
-	/**
-	 * @copydoc Form::readInputData()
-	 */
-	function readInputData() {
-		$this->readUserVars(array('style', 'citation'));
-	}
-
-	/**
-	 * Save form values into the database
-	 */
-	function execute(...$functionArgs) {		
-		parent::execute(...$functionArgs);
-		
-		$submissionDao = DAORegistry::getDAO('SubmissionDAO');
-		$submission = $submissionDao->getById($this->submissionId);
-		$publicationDao = DAORegistry::getDAO('PublicationDAO');
-		$publication = $publicationDao->getById($submission->getData('currentPublicationId'));
-		
-		$citationsAll = json_decode($publication->getData('citation'),true);
-		$newCitation = array('style'=>$this->getData('style'),'citation'=>$this->getData('citation'));
-		$citationsAll[] = $newCitation;
-
-		if($this->objectId) {
-			unset($citationsAll[$this->objectId-1]);
+		if (in_array('customHTMLContent', $context->getData('articleDetailsPageSettings'))) {
+			$this->addField(new FieldRichTextarea('customHTMLContent', [
+				'label' => __('plugins.generic.addFrontendElements.customHTMLContent.label'),
+				'isMultilingual' => true,
+				'value' => $publication->getData('customHTMLContent'),
+				'tooltip' => __('plugins.generic.addFrontendElements.customHTMLContent.tooltip'),
+				'toolbar' => 'bold italic superscript subscript | link | blockquote bullist numlist | image | code',
+				'plugins' => 'paste,link,lists,image,code',
+				'uploadUrl' => $imageUploadUrl,
+				'groupId' => 'addfrontendelementspublicationtabarticlepagegroup'
+			]));
 		}
-		$citationsAll = array_values($citationsAll);
-			
-		$publication->setData('citation',json_encode($citationsAll));
-		$publicationDao->updateObject($publication);
 	}
 }
 
