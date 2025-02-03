@@ -40,19 +40,19 @@ class AddFrontendElementsSettingsForm extends FormComponent {
 	 */
 	public function __construct($action, $locales, $context) {
 		$this->action = $action;
-		$this->successMessage = __('plugins.generic.addFrontendElements.settings.form.success', ['url' => $publicUrl]);
 		$this->locales = $locales;
 		$plugin = PluginRegistry::getPlugin('generic', 'addfrontendelementsplugin');
 
 		$this->addGroup([
 			'id' => 'addfrontendelementssettings',
-			'label' => __('plugins.generic.addFrontendElements.articleDetails.groupLabel'),
+			// 'label' => __('plugins.generic.addFrontendElements.articleDetails.groupLabel'),
 		], [])
 		->addField(new FieldOptions('articleDetailsPageSettings', [
 			'label' => __('plugins.generic.addFrontendElements.articleDetails.boxLabel'),
 			'options' => [
 				['value' => 'citations', 'label' => __('plugins.generic.addFrontendElements.addCitations.settings.description')],
-				['value' => 'reviewTypeBadge', 'label' => __('plugins.generic.addFrontendElements.reviewTypeBadge.settings.description')]
+				['value' => 'articleBadges', 'label' => __('plugins.generic.addFrontendElements.articleBadges.settings.description')],
+				['value' => 'customHTMLBox', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLBox.description')]
 			],
 			'value' => $context->getData('articleDetailsPageSettings') ?: [],
 			'groupId' => 'addfrontendelementssettings'

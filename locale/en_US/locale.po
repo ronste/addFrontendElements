@@ -29,7 +29,7 @@ msgstr "Enable additional elements to be added to the article details page"
 msgid "plugins.generic.addFrontendElements.addCitations.settings.description"
 msgstr "Enable the option to manually add citation suggestions to the article details page."
 
-msgid "plugins.generic.addFrontendElements.reviewTypeBadge.settings.description"
+msgid "plugins.generic.addFrontendElements.articleBadges.settings.description"
 msgstr "Enable badge to indicate the review type of the article."
 
 msgid "plugins.generic.addFrontendElements.addCitations.description"
@@ -56,3 +56,11 @@ msgstr "No citations yet."
 msgid "plugins.generic.addFrontendElements.addCitations.addCitation"
 msgstr "Add citation"
 
+msgid "plugins.generic.addFrontendElements.articleBadges.label"
+msgstr "Article badges"
+
+msgid "plugins.generic.addFrontendElements.articleBadges.description"
+msgstr "Enter labels to show on the article page as badges. E.g. define the review type of this article as \"Editorial review\""
+
+msgid "plugins.generic.addFrontendElements.settings.customHTMLBox.description"
+msgstr "Allow additional HTML content to be shown"

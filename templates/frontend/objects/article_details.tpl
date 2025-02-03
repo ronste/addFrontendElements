@@ -93,9 +93,15 @@
 	</h1>
 	
 	{* review type badge *}
-	<div class="reviewTypeBadge" style="float:right;">
-		<span style="border-radius: 5px; background: #ebebeb; color: #262626; padding: 6px;">Editorial Review</span>
+	{if $articleBadges}
+		<div class="articleBadges">
+		{foreach $articleBadges as $articleBadge}
+			<div class="articleBadge">
+				<span>{$articleBadge}</span>
+			</div>
+		{/foreach}
 	</div>
+	{/if}
 
 	{if $publication->getLocalizedData('subtitle')}
 		<h2 class="subtitle">
@@ -335,6 +341,7 @@
 				{/if}
 			</div>
 			{/if}
+
 			{* Citations *}
 			{if $addCitation}
 				<div class="item addCitation">
@@ -344,6 +351,7 @@
 					{$addCitation}
 				</div>
 			{/if}
+			
 			{* How to cite *}
 			{if $citation}
 				<div class="item citation">

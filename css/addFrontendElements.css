@@ -1,0 +1,22 @@
+.addCitation p {
+	margin-top:0 !important;
+}
+
+.addCitation span, .addCitation div, .addCitation p {
+	font-size: 11px !important;
+}
+
+
+.articleBadges {
+	display: flex;
+}
+
+.articleBadge {
+	margin-top: 20px;
+	margin-right: 10px;
+	border-radius: 5px;
+	background: #ebebeb;
+	color: #262626;
+	padding: 6px;
+	width: fit-content;
+}

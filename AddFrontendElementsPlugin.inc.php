@@ -7,6 +7,7 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
+use \PKP\components\forms\FieldControlledVocab;
 
 /**
  * @class AddFrontendElements
@@ -40,8 +41,8 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 				HookRegistry::register('TemplateResource::getFilename', array($this, '_overridePluginTemplates'));
 				HookRegistry::register('TemplateManager::display',array($this, 'addJs'));
 
-				# hooks to handle review badge feature
-
+				# hooks to handle article badge feature
+				HookRegistry::register('Form::config::before', array($this, 'addArticleBadgeFormField'));
 				
 			}
 			return true;
@@ -74,6 +75,13 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 					'type' => 'string',
 					'multilingual' => false
 				];
+				$schema->properties->{"articleBadges"} = (object) [
+					'type' => 'array',
+					'apiSummary' => true,
+					'validation' => ['nullable'],
+					'multilingual' => true,
+					'items' => (object) ['type' => 'string']
+				];
 				break;
 			case 'Schema::get::context':
 				$schema->properties->{"articleDetailsPageSettings"} = (object) [
@@ -96,20 +104,9 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		$output =& $args[2];
 		$request =& Registry::get('request');
 		$context = $request->getContext();
-		$dispatcher = $request->getDispatcher();
 
-		$supportedFormLocales = $context->getSupportedFormLocales();
-		$localeNames = AppLocale::getAllLocales();
-		$locales = array_map(function($localeKey) use ($localeNames) {
-			return ['key' => $localeKey, 'label' => $localeNames[$localeKey]];
-		}, $supportedFormLocales);
-
-		$contextApiUrl = $dispatcher->url(
-			$request,
-			ROUTE_API,
-			$context->getPath(),
-			'contexts/' . $context->getId() . "/addFrontendElementsSettings"
-		);
+		$locales = $this->getLocales($context);
+		$contextApiUrl = $this->getAPIUrl($request);
 
 		// instantinate settings form
 		$this->import('classes.components.form.addFrontendElementsSettingsForm');
@@ -146,6 +143,12 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		$context = $request->getContext();
 		$contextId = $context ? $context->getId() : 0;
 		$templateMgr = TemplateManager::getManager($request);
+		$baseUrl = $request->getBaseUrl();
+
+		$templateMgr->addHeader(
+			'addCitation',
+			"<link rel='stylesheet' href='".$baseUrl."/".$this->getPluginPath()."/css/addFrontendElements.css'>"
+		);
 
 		if (in_array('citations', $context->getData('articleDetailsPageSettings'))) {
 
@@ -158,31 +161,29 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 						$output .= "<span>".$citation['style'].":</span>";
 					}
 					$output .= $citation['citation'].'</div>';			
-				}			
+				}
 			}
 
 			if ($output) {
 				$templateMgr->assign(array(
-					'addCitation' => '<div>'.$output."</div>"
-				));			
+					'addCitation' => '<div>'.$output."</div>",
+				));
 			}
-			
-			import('classes.file.PublicFileManager');
-			$publicFileManager = new PublicFileManager();
-			$baseUrl = $request->getBaseUrl();		
-			$templateMgr->addHeader(
-				'addCitation',
-				"<link rel='stylesheet' href='".$baseUrl."/plugins/generic/addCitation/css/addCitation.css'>"
-			);
+
+		}
+		if (in_array('articleBadges', $context->getData('articleDetailsPageSettings'))) {
+			$templateMgr->assign(array(
+				'articleBadges' => $publication->getLocalizedData('articleBadges')
+			));
 		}
 		return false;
-	}		
+	}
 	
 	/**
 	 * Insert in the publication tabs
 	 */
 	function addToPublicationForms($hookName, $params) {
-		$context = Application::getRequest()->getContext();
+		$context = Application::get()->getRequest()->getContext();
 		if (in_array('citations', $context->getData('articleDetailsPageSettings'))) {
 			$smarty =& $params[1];
 			$output =& $params[2];
@@ -199,6 +200,38 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		}
 		return false;
 	}
+
+	// articleBadge functions
+	function addArticleBadgeFormField($hookName, $args) {
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+		if (in_array('articleBadges', $context->getData('articleDetailsPageSettings'))) {
+			
+			$form = $args;
+
+			import('classes.components.forms.publication.IssueEntryForm');
+			if ($args->id == FORM_ISSUE_ENTRY) {
+				$handler = $request->getRouter()->getHandler();
+				$submission = $handler->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION);
+
+				if (!$submission || !$context || $context->getId() != $submission->getContextId()) {
+					return;
+				} // submission id could not be found
+
+				$locales = $this->getLocales($context);
+				$publication = $submission->getCurrentPublication();
+
+				$form->addField(new FieldControlledVocab('articleBadges', [
+					'label' => __('plugins.generic.addFrontendElements.articleBadges.label'),
+					'tooltip' => __('plugins.generic.addFrontendElements.articleBadges.description'),
+					'isMultilingual' => true,
+					// 'apiUrl' => str_replace('__vocab__', CONTROLLED_VOCAB_SUBMISSION_KEYWORD, $suggestionUrlBase),
+					'locales' => $locales,
+					'selected' => (array) $publication->getData('articleBadges')?:[],
+				]), [FIELD_POSITION_BEFORE, 'coverImage']);
+			}
+		}
+    }
 		
 	/**
 	 * Set up handler
@@ -222,7 +255,7 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		$template =& $params[1];
 		$request = Application::get()->getRequest();
 
-		$gridHandlerJs = $this->getJavaScriptURL($request, false) . DIRECTORY_SEPARATOR . 'AddCitationGridHandler.js';		
+		$gridHandlerJs = $this->getJavaScriptURL() . DIRECTORY_SEPARATOR . 'AddCitationGridHandler.js';		
 		$templateMgr->addJavaScript(
 			'AddCitationGridHandlerJs',
 			$gridHandlerJs,
@@ -232,11 +265,27 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		return false;
 	}
 
-	// Review badge feature functions
-
-
-
 	// global helper functions
+
+	// get API Url for our settings form
+	function getAPIUrl($request) {
+		$context = $request->getContext();
+		$dispatcher = $request->getDispatcher();
+		return $dispatcher->url(
+			$request,
+			ROUTE_API,
+			$context->getPath(),
+			'contexts/' . $context->getId() . "/addFrontendElementsSettings"
+		);
+	}
+
+	function getLocales($context) {
+		$supportedFormLocales = $context->getSupportedFormLocales();
+		$localeNames = AppLocale::getAllLocales();
+		return array_map(function($localeKey) use ($localeNames) {
+			return ['key' => $localeKey, 'label' => $localeNames[$localeKey]];
+		}, $supportedFormLocales);
+	}
 
 	/**
 	 * Get the JavaScript URL for this plugin.

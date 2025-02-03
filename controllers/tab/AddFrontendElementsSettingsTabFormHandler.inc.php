@@ -20,11 +20,12 @@ class AddFrontendElementsSettingsTabFormHandler extends SettingsHandler {
 
 	function saveFormData(... $functionArgs) {
 
-		$request = Application::getRequest();
+		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 		$args = $request->_requestVars;
 		$response =& $functionArgs[1];
 
+		$context->setData('articleDetailsPageSettings', $args['articleDetailsPageSettings']);
 		$context->updateSetting('articleDetailsPageSettings', $args['articleDetailsPageSettings']);
 
 		return $response->withStatus(200);

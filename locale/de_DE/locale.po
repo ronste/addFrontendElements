@@ -43,3 +43,12 @@ msgstr "Bislang sind keine Zitationsvorschläge vorhanden."
 
 msgid "plugins.generic.addFrontendElements.addCitations.addCitation"
 msgstr "Zitationsvorschlag hinzufügen"
+
+msgid "plugins.generic.addFrontendElements.articleBadges.label"
+msgstr "Article badges"
+
+msgid "plugins.generic.addFrontendElements.articleBadges.description"
+msgstr "Enter labels to show on the article page as badges. E.g. define the review type of this article as \"Editorial review\""
+
+msgid "plugins.generic.addFrontendElements.settings.customHTMLBox.description"
+msgstr "Erlaube das Anzeigen von zusätzlichem HTML-Code auf der Artikelseite"
