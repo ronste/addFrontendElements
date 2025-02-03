@@ -20,3 +20,8 @@
 	padding: 6px;
 	width: fit-content;
 }
+
+.customHTMLContent img {
+	width: 100%;
+	height: auto;
+}

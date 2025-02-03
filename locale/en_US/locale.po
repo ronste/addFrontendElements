@@ -63,19 +63,19 @@ msgid "plugins.generic.addFrontendElements.articleBadges.label"
 msgstr "Article badges"
 
 msgid "plugins.generic.addFrontendElements.articleBadges.description"
-msgstr "Enter labels to show on the article page as badges. E.g. define the review type of this article as \"Editorial review\""
+msgstr "Enter labels for badges to show on the article. E.g. define the review type of this article as \"Editorial review\""
 
 msgid "plugins.generic.addFrontendElements.settings.customHTMLContent.description"
-msgstr "Allow additional HTML content to be shown"
+msgstr "Allow additional content to be shown"
 
 msgid "plugins.generic.addFrontendElements.customHTMLContent.label"
-msgstr "Additional HTML content to be shown on the article page"
+msgstr "Additional content to be shown on the article page"
 
 msgid "plugins.generic.addFrontendElements.customHTMLContent.tooltip"
 msgstr "By means of the \"<> (Source Code)\" button you can e.g. integrate HTML-Code to embbed streaming video sources."
 
 msgid "plugins.generic.addFrontendElements.settings.customHTMLContentPosition.boxLabel"
-msgstr "Select position of the custom HTML content on the article page"
+msgstr "Select position of the custom content on the article page"
 
 msgid "plugins.generic.addFrontendElements.settings.customHTMLContentPosition.top"
 msgstr "Top"

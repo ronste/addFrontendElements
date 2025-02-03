@@ -88,13 +88,6 @@
 		</div>
 		{/if}
 
-		{* customHTMLContent *}
-		{if $customHTMLContent}
-		<div class="customHTMLContent">
-			{$customHTMLContent}
-		</div>
-		{/if}
-
 		{if $section}
 			<p class="article-page__meta">{$section->getLocalizedTitle()|escape}</p>
 		{else}
@@ -299,6 +292,13 @@
 	{if $publication->getLocalizedData('abstract')}
 		<h3 class="label">{translate key="article.abstract"}</h3>
 		{$publication->getLocalizedData('abstract')|strip_unsafe_html}
+	{/if}
+
+	{* customHTMLContent *}
+	{if $customHTMLContent}
+		<div class="customHTMLContent">
+			{$customHTMLContent}
+		</div>
 	{/if}
 
 	{* References *}

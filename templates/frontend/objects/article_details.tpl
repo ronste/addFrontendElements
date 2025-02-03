@@ -258,6 +258,15 @@
 				</section>
 			{/if}
 
+			{* customHTMLcontent *}
+			{if $customHTMLContentPosition == 'bottom'}
+				{if $customHTMLContent}
+				<div class="item customHTMLContent">
+					{$customHTMLContent}
+				</div>
+				{/if}
+			{/if}
+
 		</div><!-- .main_entry -->
 
 		<div class="entry_details">
@@ -511,16 +520,6 @@
 			{call_hook name="Templates::Article::Details"}
 
 		</div><!-- .entry_details -->
-
-		{* customHTMLcontent *}
-		{if $customHTMLContentPosition == 'bottom'}
-			{if $customHTMLContent}
-			<div class="customHTMLContent">
-				{$customHTMLContent}
-			</div>
-			{/if}
-		{/if}
-		
 	</div><!-- .row -->
 
 </article>
