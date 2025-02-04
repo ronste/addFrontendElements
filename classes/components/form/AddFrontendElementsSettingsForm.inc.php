@@ -52,7 +52,8 @@ class AddFrontendElementsSettingsForm extends FormComponent {
 			'options' => [
 				['value' => 'citations', 'label' => __('plugins.generic.addFrontendElements.addCitations.settings.description')],
 				['value' => 'articleBadges', 'label' => __('plugins.generic.addFrontendElements.articleBadges.settings.description')],
-				['value' => 'customHTMLContent', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContent.description')]
+				['value' => 'customHTMLContent', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContent.description')],
+				['value' => 'coverImageCaption', 'label' => __('plugins.generic.addFrontendElements.settings.coverImageCaption.description')]
 			],
 			'value' => $context->getData('articleDetailsPageSettings') ?: [],
 			'groupId' => 'addfrontendelementssettings'

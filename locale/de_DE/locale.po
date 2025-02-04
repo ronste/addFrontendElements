@@ -70,3 +70,9 @@ msgstr "Oben"
 
 msgid "plugins.generic.addFrontendElements.settings.customHTMLContentPosition.bottom"
 msgstr "Unten"
+
+msgid "plugins.generic.addFrontendElements.coverImageCaption.label"
+msgstr "Beschriftung des Artikelbildes"
+
+msgid "plugins.generic.addFrontendElements.settings.coverImageCaption.description"
+msgstr "Aktiviere die Option eine Bildunterschrift für das Artikelbild anzuzeigen"

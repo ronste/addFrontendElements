@@ -1,4 +1,6 @@
 <?php
+
+use PKP\components\forms\FieldText;
 /**
  * @file plugins/generic/addFrontendElements/AddFrontendElementsPlugin.inc.php
  *
@@ -84,6 +86,12 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 					'apiSummary' => true,
 					'validation' => ['nullable'],
 					'multilingual' => true,
+				];	
+				$schema->properties->{"coverImageCaption"} = (object) [
+					'type' => 'string',
+					'apiSummary' => true,
+					'validation' => ['nullable'],
+					'multilingual' => true,
 				];
 				break;
 			case 'Schema::get::context':
@@ -98,6 +106,7 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 					'apiSummary' => true,
 					'validation' => ['nullable'],
 				];
+
 				break;
 		}
 
@@ -207,6 +216,11 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 				'customHTMLContentPosition' => $context->getData('customHTMLContentPosition')
 			));
 		}
+		if (in_array('coverImageCaption', $context->getData('articleDetailsPageSettings'))) {
+			$templateMgr->assign(array(
+				'coverImageCaption' => $publication->getLocalizedData('coverImageCaption')
+			));
+		}
 		return false;
 	}
 	
@@ -281,11 +295,11 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		return false;
 	}
 
-	// articleBadge functions
+	// add to issue form
 	function addArticleBadgeFormField($hookName, $args) {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
-		if (in_array('articleBadges', $context->getData('articleDetailsPageSettings'))) {
+		if (in_array('coverImageCaption', $context->getData('articleDetailsPageSettings'))) {
 			
 			$form = $args;
 
@@ -301,14 +315,12 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 				$locales = $this->getLocales($context);
 				$publication = $submission->getCurrentPublication();
 
-				$form->addField(new FieldControlledVocab('articleBadges', [
-					'label' => __('plugins.generic.addFrontendElements.articleBadges.label'),
-					'tooltip' => __('plugins.generic.addFrontendElements.articleBadges.description'),
+				$form->addField(new FieldText('coverImageCaption', [
+					'label' => __('plugins.generic.addFrontendElements.coverImageCaption.label'),
 					'isMultilingual' => true,
-					// 'apiUrl' => str_replace('__vocab__', CONTROLLED_VOCAB_SUBMISSION_KEYWORD, $suggestionUrlBase),
+					'size' => 'large',
 					'locales' => $locales,
-					'selected' => (array) $publication->getData('articleBadges'),
-				]), [FIELD_POSITION_BEFORE, 'coverImage']);
+				]), [FIELD_POSITION_AFTER, 'coverImage']);
 			}
 		}
     }

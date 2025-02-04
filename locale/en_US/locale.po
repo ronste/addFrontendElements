@@ -82,3 +82,9 @@ msgstr "Top"
 
 msgid "plugins.generic.addFrontendElements.settings.customHTMLContentPosition.bottom"
 msgstr "Bottom"
+
+msgid "plugins.generic.addFrontendElements.coverImageCaption.label"
+msgstr "Cover image caption"
+
+msgid "plugins.generic.addFrontendElements.settings.coverImageCaption.description"
+msgstr "Enable option to add a caption to article cover images"
