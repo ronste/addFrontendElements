@@ -134,7 +134,7 @@ class AddFrontendElementsPlugin extends GenericPlugin {
 		
 		$currentTheme = $request->getContext()->getData('themePluginPath');
 		switch ($currentTheme) {
-			case 'immersion':
+			case str_contains('immersion', $$currentTheme):
 				$customHTMLContentPositionOptions = [
 					['value' => 'top', 'label' => __('plugins.generic.addFrontendElements.settings.customHTMLContentPosition.top')],
 				];
